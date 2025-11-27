@@ -1,55 +1,128 @@
 # PRList
 
-PRList is a lightweight single-page React application that fetches and displays pull requests across multiple GitHub repositories.  The goal of this project is to demonstrate my ability to learn React quickly, structure components cleanly, and design an interface that can easily swap its data source from GitHub’s public API to an internal C# Web API.  Nothing sensitive is persisted on the client, and the code is organised from day one for growth.
+**PRList** is a lightweight React single-page application that fetches and displays pull requests across multiple GitHub repositories.  
+It’s intentionally small, but built with the same structure and boundaries you’d expect in a real production UI.
 
-##Features (v1.0)
-	•	Settings form – Collects a GitHub personal access token (held only in memory), the organisation name and a comma‑separated list of repositories.  Fields are fully controlled, validated on blur and submit, and only persist non‑sensitive values when the user explicitly saves them.
-	•	Fetch on demand – Submitting a valid form triggers a call to GitHub’s REST API to list pull requests across the specified repositories.  There is no automatic fetch on page load because the token is never stored.
-	•	Pull request table – Displays each pull request with the following normalised fields: username, repository, number, title, createdAt, updatedAt, comment count and status (open/draft).  Rows are sorted by updatedAt (with createdAt as a fallback), and stable keys ensure predictable rendering.
-	•	Encapsulated data layer – All GitHub calls live in an api/githubClient.ts module behind a small service interface.  A custom usePullRequests hook handles asynchronous fetches, loading and error states, and maps raw API responses into the internal PullRequest model.
-	•	Error handling – If a fetch fails, a dismissible banner appears at the top of the page and the table shows no rows.  The token is never exposed or logged.
+The purpose of this project is to demonstrate:
 
-#Architecture
+- Ability to learn React quickly and write clean, well-organized components  
+- Good separation between UI, data fetching, and domain models  
+- A stable service interface that can easily swap its backend from GitHub → a future C# Web API  
+- Awareness of client-side security concerns (GitHub token stored in memory only)  
+- Practical, maintainable architecture without over-engineering
 
-##Feature‑first structure
+---
 
-Components related to pull requests live in src/features/pullRequests/ (e.g. SettingsForm, PullRequestTable, usePullRequests, and type definitions).  Shared UI building blocks, such as a generic Table and ErrorBanner, reside in src/components/common/.  API clients live in src/api/, isolating side effects from the UI layer.  This organisation anticipates future features without bloating the root of the project.
+## Features (v1.0)
 
-##Stable service interface
+**1. Settings Form**
 
-The UI depends on a PRService interface that exposes methods such as listPullRequests() and saveToken().  Today, the implementation wraps GitHub’s REST API and stores the token in memory.  In v1.1 a C# Web API will implement the same interface, securely storing the token and proxying requests.  Because the domain model and interface are fixed, the UI does not change when the backend does.
+- GitHub Personal Access Token (never persisted — memory only)  
+- GitHub organization  
+- Comma-separated list of repositories  
+- Controlled inputs with validation (onBlur + onSubmit)  
+- Saves only non-sensitive fields to localStorage when user clicks **Save**
 
-##Security first
+**2. Pull Request Table**
 
-The GitHub token is a sensitive secret.  In this version it is never persisted to disk or localStorage; it exists only in component state while the page is open.  When a C# backend is introduced, it will encrypt and store the token server‑side, returning only a validity indicator to the front‑end.
+- Normalized PR model:
+  - `id`
+  - `repo`
+  - `number`
+  - `title`
+  - `username`
+  - `updatedAt`
+  - `createdAt`
+  - `commentCount`
+  - `status`
+- Sorts by **updatedAt** descending (fallback: createdAt)
+- Handles errors gracefully with a dismissible error banner
+- Renders an empty table if fetch fails (no crash states)
 
-#Running the project
-	1.	Clone this repository.
-	2.	Install dependencies with npm install.
-	3.	Start the development server with npm start.
-	4.	Open the app in your browser and enter a personal access token (with at least repo scope), the organisation name and a comma‑separated list of repositories.  Click Save to persist the non‑secret fields, then Submit to fetch pull requests.  The token remains in memory and is cleared on refresh.
+**3. Architecture**
 
-#Roadmap
+- Feature-first folder layout (`/features/pullRequests`)
+- Dedicated **PRService** interface separating UI from data source
+- GitHub implementation of that interface (v1.0)
+- Ready for a C# implementation (v1.1)
+- `usePullRequests` custom hook for async logic + loading/error state
+- Clean, declarative React components (no prop-drilling clutter)
 
-##v1.0 (Complete)
-	•	Settings form with controlled inputs and validation.
-	•	In‑memory token storage only.
-	•	Explicit fetch triggered by form submission.
-	•	Display table of pull requests with normalised fields.
-	•	Sort by updatedAt, fallback to createdAt.
-	•	Dismissible error banner on fetch failure.
-	•	Feature‑first folder structure, API abstraction layer and custom hook.
+---
 
-##v1.1 – Back‑end integration
-	•	Replace direct GitHub calls with a C# Web API that securely stores and encrypts the token.
-	•	Provide endpoints to list pull requests and return token validity without exposing the token.
-	•	Autoload pull requests on page load when a valid stored token exists.
-	•	Maintain the existing PullRequest model and PRService interface to avoid UI changes.
+## Why This Project Exists
 
-##Future enhancements
-	•	Advanced filtering (by status, author) and grouping (by release, priority).
-	•	Drag‑and‑drop reordering of pull requests.
-	•	Display additional metadata (e.g. release identifiers or internal priorities).
-	•	Real‑time updates via WebSockets/SignalR.
-	•	Support for multiple SCM providers (GitLab, Bitbucket) or internal repositories.
-	•	Automated tests for components and hooks.
+This is a focused demonstration of how I approach front-end architecture:
+
+- Define clear boundaries  
+- Keep side effects isolated  
+- Normalize external data  
+- Make the UI backend-agnostic  
+- Favor simplicity where it matters  
+- Build something small that *feels* scalable
+
+Although this project could have been hacked together quickly, it’s intentionally structured to show that I don’t take shortcuts with component design, data flow, or security.
+
+---
+
+## Security Notes
+
+- GitHub token is **not** stored in localStorage or sessionStorage  
+- Token remains in memory and is lost on page reload  
+- This avoids exposing credentials to XSS or browser-persistent storage  
+- v1.1 introduces a secure backend that stores and encrypts the token server-side
+
+---
+
+## Future-Ready Design
+
+The UI depends on a stable **PRService** interface.  
+That means:
+
+- Today: GitHub REST API directly  
+- Tomorrow: A C# Web API acting as a secure proxy  
+- UI code stays the same — only the service implementation changes
+
+The PR model is also normalized so the UI never depends on GitHub’s raw response shape.  
+This keeps the React layer stable even if the backend evolves.
+
+---
+
+## Roadmap (High-Level)
+
+### v1.1
+- C# backend to securely accept, encrypt, and store GitHub tokens  
+- Backend becomes the GitHub proxy  
+- Frontend switches to a `CSharpProxyClient` implementation  
+- Autoload PRs on page load (since backend stores token)  
+- Improved sorting, filtering, and error handling
+
+### Future Enhancements
+- Group PRs by release, repo, or priority  
+- Drag-and-drop PR prioritization  
+- PR metadata augmentation via backend  
+- Server-side pagination & filtering  
+- Dark mode and minor styling upgrades
+
+---
+
+## Running Locally
+```
+npm install
+npm run dev
+```
+Then open:
+http://localhost:5173
+
+You will need:
+
+- A Personal Access Token with `repo` or `public_repo` scope  
+- An organization name  
+- One or more repo names (comma-separated)
+
+---
+
+## Final Notes
+
+This project reflects how I approach real-world software — practical, clear, and future-ready.  
+It’s small by design, but the architectural decisions are deliberate, not accidental.
