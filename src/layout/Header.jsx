@@ -1,6 +1,5 @@
-// import Container from 'react-bootstrap/Container';
-// import Nav from 'react-bootstrap/Nav';
-// import Navbar from 'react-bootstrap/Navbar';
+import React from "react";
+import { Link } from "react-router-dom";
 
 export default function Header() {
   return (
@@ -10,8 +9,11 @@ export default function Header() {
           <input type="checkbox" id="menu-toggle" />
           <label htmlFor="menu-toggle" className="hamburger floatRight">☰</label>
           <ul className="menu">
-            <li><a href="/">PRs</a></li>
-            <li><a href="/bout">About</a></li>
+            {/* server-side routing: <li><a href="/">Pull Requests</a></li> */}
+            {/* server-side routing: <li><a href="/about">About</a></li> */}
+            <li><Link to="/">Pull Requests</Link></li>
+            <li><Link to="/about">About</Link></li>
+
           </ul>
         </span>
       </h1>
