@@ -37,3 +37,26 @@ footer {
     right: 5;
     width: 100%; /* Adjust width as needed */
 }
+
+.prlist-form {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    align-items: flex-start;
+    width: 700px;
+    margin-left: 25%;
+}
+
+.prlist-form input {
+    margin: 5px 0px;
+}
+
+.prlist-form-repos {
+    flex: 1;
+}
+
+.prlist-form-pat {
+    flex: 0 0 auto;
+    margin-left: auto;
+    text-align: right;
+}
