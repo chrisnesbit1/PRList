@@ -16,6 +16,8 @@ export default function PRListPage() {
     }
     
     function handleFormSubmit(configDto) {
+        console.log("handleFormSubmit called");
+        console.log(configDto);
         // Receive a config DTO from the form
         // Validate it if needed (later: GitHub PAT check, repo list check, etc.)
         // Try to save using your settings service
