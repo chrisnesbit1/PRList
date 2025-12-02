@@ -1,9 +1,11 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import PRListForm from "./PRListForm.jsx";
+import { CreateSettingsService } from "../../services/SettingsService.jsx";
 
 export default function PRListPage() {
+    const settingsService = useMemo(() => CreateSettingsService(), []);
     const [errors, setErrors] = useState([]);
-    const [config, setConfig] = useState(null);
+    const [config, setConfig] = useState(() => settingsService.load());
 
     // Orchestration functions:
     // These handlers live in the parent component (PRListPage) because React’s
@@ -28,11 +30,13 @@ export default function PRListPage() {
         // call setErrors with a user-friendly message
         // OR call handleChildError('service', message)
 
-        // For now: just store the config
-        setConfig(configDto);
-
-        // Clear errors on new submit
-        setErrors([]);
+        try {
+            settingsService.save(configDto);
+            setConfig(configDto);
+            setErrors([]);
+        } catch (err) {
+            handleChildError('service', err.message || 'Failed to save settings');
+        }
     }
     // end: Orchestration functions
     
@@ -41,6 +45,8 @@ export default function PRListPage() {
             <h2>Pull Requests</h2>
 
             <PRListForm
+                initialPat={config?.pat ?? ""}
+                initialRepos={config?.repos ?? []}
                 onSubmit={handleFormSubmit}
                 onError={(message) => handleChildError('form', message)}
             />

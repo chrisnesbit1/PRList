@@ -1,5 +1,3 @@
-import { useState } from 'react';
-
 export function CreateSettingsDto(pat, reposArray) {
   return { pat, repos: reposArray };
 }
