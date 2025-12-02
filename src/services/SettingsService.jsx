@@ -33,7 +33,6 @@ export function CreateSettingsService() {
 
     save(settingsDto) {
         console.log("CreateSettingsService.save called");
-        console.log(settingsDto);
         const { pat, repos } = settingsDto;
 
         // PAT stays in memory only
