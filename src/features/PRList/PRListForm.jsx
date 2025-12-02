@@ -1,14 +1,36 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { CreateSettingsDto } from "../../services/SettingsService.jsx";
 
-export default function PRListForm({ onSubmit, onError }) {
-    const [pat, setPat] = useState('');
-    const [reposText, setReposText] = useState('');
+export default function PRListForm({ onSubmit, onError, initialPat = "", initialRepos = [] }) {
+    const [pat, setPat] = useState(initialPat);
+    const [reposText, setReposText] = useState(initialRepos.join("\n"));
+
+    useEffect(() => {
+        setPat(initialPat);
+    }, [initialPat]);
+
+    useEffect(() => {
+        setReposText(initialRepos.join("\n"));
+    }, [initialRepos]);
 
     function handleSubmit(e) {
         e.preventDefault();
-        // gather DTO from local state
-        // call onSubmit(dto)
-        onSubmit({pat, reposText});
+        
+        const repos = reposText
+            .split("\n")
+            .map(r => r.trim())
+            .filter(Boolean);
+
+        repos.forEach(repo => {
+            if (repo.indexOf("/") === -1) {
+                const err = new Error(`Invalid GitHub repo: ${repo}`);
+                if (onError) onError(err.message);
+                throw err;
+            }
+        });
+
+        const dto = CreateSettingsDto(pat, repos);
+        onSubmit(dto);
     };
 
     return (
